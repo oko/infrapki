@@ -1,6 +1,10 @@
 testint
 testroot
 
+# artifacts of pex build
+infrapki.pex
+requirements.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
