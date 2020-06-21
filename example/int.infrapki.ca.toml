@@ -1,0 +1,13 @@
+[ca]
+root = false
+
+private_key_algorithm = "rsa"
+private_key_size = 4096
+private_key_no_passphrase = true
+
+[ca.subject_name]
+country_name = "US"
+state_or_province_name = "California"
+locality_name = "San Francisco"
+organization_name = "InfraPKI Project"
+common_name = "InfraPKI Example Intermediate CA"
