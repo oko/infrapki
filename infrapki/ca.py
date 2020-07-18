@@ -1,24 +1,26 @@
-import click
-import os
 import logging
+import os
 import shutil
+from datetime import datetime, timedelta
+from typing import Optional, Union
+
+import click
 import toml
-
 from cryptography import x509
-from cryptography.hazmat.primitives.asymmetric import rsa, ec
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 
-from .subject import dict_to_name
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
 from .certgen import gen_self_signed_root_ca_cert
 from .csrgen import gen_int_ca_csr
+from .db import Base, IssuedCert
 from .keygen import new_ecdsa_key, new_rsa_key
-from .sign import SignaturePolicy, SignaturePolicyResult, IntermediateCASignaturePolicy
-
-from datetime import datetime, timedelta
-from typing import Union, Optional
+from .sign import IntermediateCASignaturePolicy, SignaturePolicy, SignaturePolicyResult
+from .subject import dict_to_name
+from .util import serial_number_to_bytes
 
 log = logging.getLogger(__name__)
 
@@ -50,6 +52,12 @@ class CA(object):
     def __init__(self, directory, new=False):
         self.dir = os.path.realpath(directory)
         self.config = self.load_config()
+        self.db = None
+        self.db_session = None
+
+        self.db = create_engine(f"sqlite:///{self.db_path()}")
+        Base.metadata.create_all(self.db)
+        self.db_session = sessionmaker(bind=self.db)
 
     def config_path(self):
         return os.path.join(self.dir, "infrapki.ca.toml")
@@ -74,6 +82,9 @@ class CA(object):
 
     def is_root(self):
         return self.config["ca"].get("root", False)
+
+    def db_path(self):
+        return os.path.join(self.dir, "db.sqlite3")
 
     def get_passphrase(self):
         """
@@ -280,11 +291,21 @@ class CA(object):
         after = datetime.now() + timedelta(days=30)
         certbuild = (
             policy.build_cert(self.load_ca_cert(), csr)
-            .serial_number(1000)
+            .serial_number(x509.random_serial_number())
             .not_valid_before(before)
             .not_valid_after(after)
         )
         cert = certbuild.sign(key, hashes.SHA256(), default_backend())
+
+        session: Session = self.db_session()
+        ic = IssuedCert(
+            serial=serial_number_to_bytes(cert.serial_number),
+            cert=cert.public_bytes(serialization.Encoding.PEM),
+        )
+        session.add(ic)
+        print("serial:", ic.serial)
+        session.commit()
+
         return cert
 
     def load_config(self):

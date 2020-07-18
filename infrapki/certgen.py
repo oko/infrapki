@@ -1,9 +1,11 @@
-from cryptography import x509
-from cryptography.x509 import NameOID
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
 from datetime import datetime, timedelta
-from typing import Union, Optional
+from typing import Optional, Union
+
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.x509 import NameOID
+
 from . import KeyUnionType
 
 

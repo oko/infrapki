@@ -1,18 +1,15 @@
-import click
 import logging
 import os
-import sys
 import shutil
+import sys
 
+import click
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
 from ..ca import CA
+from ..sign import IntermediateCASignaturePolicy, ServerCertSignaturePolicy
 from ..util import write_pem_certificate
-from ..sign import (
-    IntermediateCASignaturePolicy,
-    ServerCertSignaturePolicy,
-)
 
 log = logging.getLogger(__name__)
 
@@ -61,6 +58,8 @@ def sign(directory, csr, output):
         )
         exit(1)
     write_pem_certificate(cert, output)
+    print(f"{cert.serial_number:x}")
+    print(f"{cert.subject.rfc4514_string()}")
 
 
 @cacli.command("install-ca-cert")

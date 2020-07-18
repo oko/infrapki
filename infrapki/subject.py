@@ -1,8 +1,8 @@
+from dataclasses import dataclass, field
+from typing import Any, Dict
+
 from cryptography import x509
 from cryptography.x509 import NameOID
-
-from dataclasses import dataclass, field
-from typing import Dict, Any
 
 
 def dict_to_name(data: Dict[str, str]):

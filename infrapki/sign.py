@@ -1,6 +1,6 @@
 import abc
 
-from cryptography import x509, exceptions
+from cryptography import exceptions, x509
 from cryptography.x509 import extensions as x509ext
 from cryptography.x509 import oid
 

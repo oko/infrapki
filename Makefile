@@ -1,5 +1,6 @@
 lint:
-	find . -type f | xargs black
+	find infrapki -type f -name '*.py' | xargs isort
+	find infrapki -type f -name '*.py' | xargs black
 
 pex:
 	pipenv lock -r > requirements.txt

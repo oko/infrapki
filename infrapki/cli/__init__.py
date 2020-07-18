@@ -1,9 +1,10 @@
-import click
 import logging
 
-logging.basicConfig()
+import click
 
 from .ca import cacli
+
+logging.basicConfig()
 
 
 @click.group("infrapki")

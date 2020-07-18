@@ -1,4 +1,5 @@
-from cryptography.hazmat.primitives.asymmetric import rsa, ec
-from typing import Union, Optional
+from typing import Optional, Union
+
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 
 KeyUnionType = Union[rsa.RSAPrivateKey, ec.EllipticCurvePrivateKeyWithSerialization]
