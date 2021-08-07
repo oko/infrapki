@@ -18,8 +18,19 @@ openssl verify -CAfile testroot/public/ca.cert.pem testint/public/ca.cert.pem
 
 # create server certificate from intermediate
 sdir="$(mktemp -d)"
+echo "------------- generating server cert"
 openssl req -nodes -newkey rsa:2048 -keyout "$sdir/key" -out "$sdir/csr" -subj "/C=US/ST=California/L=San Francisco/O=InfraPKI/CN=infrapki.example.com"
 pipenv run -- infrapki --debug ca sign testint "$sdir/csr" "$sdir/cert"
+openssl x509 -in "$sdir/cert" -noout -text
+
+# verify leaf certificate against root with chain
+cat "$sdir/cert" testint/public/ca.cert.pem > "$sdir/chain"
+openssl verify -CAfile testroot/public/ca.cert.pem -untrusted "$sdir/chain" "$sdir/cert"
+
+echo "------------- generating client cert"
+sdir="$(mktemp -d)"
+openssl req -nodes -newkey rsa:2048 -keyout "$sdir/key" -out "$sdir/csr" -subj "/C=US/ST=California/L=San Francisco/O=InfraPKI/CN=oko@oko.io"
+pipenv run -- infrapki --debug ca sign testint "$sdir/csr" "$sdir/cert" --client
 openssl x509 -in "$sdir/cert" -noout -text
 
 # verify leaf certificate against root with chain

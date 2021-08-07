@@ -10,8 +10,23 @@ Git clone and Python setup:
 
 ```
 git clone github.com/oko/infrapki
-pipenv install
+pipenv install -d
 pipenv run -- python3 setup.py install
+```
+
+### Build PEX
+
+Outside the shell:
+
+```
+pipenv shell
+```
+
+Inside the subshell:
+
+```
+make pex
+exit
 ```
 
 ### Root CAs
@@ -27,7 +42,7 @@ Root CAs are generated without a basic constraint path length. The path length u
 
 ### Intermediate CAs
 
-See `scripts/testint.sh` for a demonstration of intermediate CAs.
+See `scripts/testint.sh` for a demonstration of intermediate CAs. This script also demonstrates server and client cert signing with intermediate CAs.
 
 ### Server Certs
 

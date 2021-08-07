@@ -4,4 +4,4 @@ lint:
 
 pex:
 	pipenv lock -r > requirements.txt
-	pex . -v -e infrapki.cli:infrapki -r requirements.txt -o infrapki.pex --disable-cache
+	pipenv run -- pex . -v -e infrapki.cli:infrapki -r requirements.txt -o infrapki.pex --disable-cache

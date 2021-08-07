@@ -8,7 +8,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
 from ..ca import CA
-from ..sign import IntermediateCASignaturePolicy, ServerCertSignaturePolicy
+from ..sign import IntermediateCASignaturePolicy, ServerCertSignaturePolicy, ClientCertSignaturePolicy
 from ..util import write_pem_certificate
 
 log = logging.getLogger(__name__)
@@ -41,12 +41,16 @@ def new(directory, config):
 @click.argument("directory")
 @click.argument("csr")
 @click.argument("output")
-def sign(directory, csr, output):
+@click.option("--client", is_flag=True, help="sign certificate as client certificate")
+def sign(directory, csr, output, client):
     ca = CA(directory)
     if ca.is_root():
         policy = IntermediateCASignaturePolicy()
     else:
-        policy = ServerCertSignaturePolicy()
+        if client:
+            policy = ClientCertSignaturePolicy()
+        else:
+            policy = ServerCertSignaturePolicy()
     with open(csr, "rb") as f:
         csr = x509.load_pem_x509_csr(f.read(), default_backend())
     cert = ca.sign(csr, policy)
